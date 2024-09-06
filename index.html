@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Restaurant Management System</h1>
+
+    <h2>Menu</h2>
+    <div id="menu-container"></div>
+
+    <h2>Place an Order</h2>
+    <form id="order-form">
+        <input type="text" name="items" placeholder="Item IDs (comma-separated)" required>
+        <button type="submit">Place Order</button>
+    </form>
+
+    <h2>Make a Reservation</h2>
+    <form id="reservation-form">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="date" name="date" required>
+        <input type="time" name="time" required>
+        <input type="number" name="guests" placeholder="Number of Guests" required>
+        <button type="submit">Reserve</button>
+    </form>
+
+    <script>
+        async function loadMenu() {
+            const response = await fetch('/menu');
+            const menuItems = await response.json();
+            const container = document.getElementById('menu-container');
+
+            menuItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <p>Price: $${item.price}</p>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        document.getElementById('order-form').onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            await fetch('/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            alert('Order placed successfully!');
+        };
+
+        document.getElementById('reservation-form').onsubmit = async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            await fetch('/reserve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            alert('Reservation made successfully!');
+        };
+
+        loadMenu();
+    </script>
+</body>
+</html>
